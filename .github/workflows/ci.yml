@@ -1,3 +1,6 @@
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   pull_request:
   push:
@@ -10,6 +13,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+       -name: Fix executable permissions
+        run: chmod +x bin/* 
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -31,6 +37,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        
+      - name: Fix executable permissions
+        run: chmod +x bin/*
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -62,18 +71,27 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+      
+      - name: Fix executable permissions
+        run: chmod +x bin/*
+      
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
+      - name: Setup test database
+        env:
+          RAILS_ENV: test
+        run: |
+          bundle exec rails db:create
+          bundle exec rails db:schema:load
+
       - name: Run tests
         env:
           RAILS_ENV: test
-          # RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
-          # REDIS_URL: redis://localhost:6379/0
-        run: bundle exec rails db:test:prepare test
+        run: bundle exec rails test
+        
 
   system-test:
     runs-on: ubuntu-latest
@@ -88,18 +106,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Fix executable permissions
+        run: chmod +x bin/*
+      
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
-      - name: Run System Tests
+      - name: Setup system test database
         env:
           RAILS_ENV: test
-          # RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
-          # REDIS_URL: redis://localhost:6379/0
-        run: bundle exec rails db:test:prepare test:system
+        run: |
+          bundle exec rails db:create
+          bundle exec rails db:schema:load
 
+      - name: Run system tests
+        env:
+          RAILS_ENV: test
+        run: bundle exec rails test:system
+
+      
       - name: Keep screenshots from failed system tests
         uses: actions/upload-artifact@v4
         if: failure()
