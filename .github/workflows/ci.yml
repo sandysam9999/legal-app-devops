@@ -8,25 +8,23 @@ on:
 
 jobs:
   scan_ruby:
-    runs-on: ubuntu-latest
+  runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-       -name: Fix executable permissions
-        run: chmod +x bin/* 
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
+    - name: Install dependencies
+      run: bundle install
 
-      - name: Scan for common Rails security vulnerabilities using static analysis
-        run: bundle exec brakeman --no-pager
-      
-      - name: Scan for known security vulnerabilities in gems used
-        run: bundle exec bundler-audit
+    - name: Scan for Rails security vulnerabilities
+      run: bundle exec brakeman --no-pager
+
+    - name: Scan gem vulnerabilities
+      run: bundle exec bundler-audit
       
   
 
@@ -56,7 +54,10 @@ jobs:
           restore-keys: |
             rubocop-${{ runner.os }}-${{ env.DEPENDENCIES_HASH }}-
 
-      - name: Lint code for consistent style
+      - name: Install dependencies
+        run: bundle install
+
+      - name: Lint code
         run: bundle exec rubocop -f github
 
   test:
@@ -83,7 +84,10 @@ jobs:
     - uses: ruby/setup-ruby@v1
       with:
         bundler-cache: true
-
+    
+    - name: Install dependencies
+      run: bundle install
+    
     - name: Setup database
       env:
         RAILS_ENV: test
@@ -112,6 +116,9 @@ jobs:
       - name: Install Chrome
         uses: browser-actions/setup-chrome@v1
 
+      - name: Install dependencies
+        run: bundle install
+      
       - name: Setup database
         env:
         RAILS_ENV: test
