@@ -12,7 +12,7 @@ jobs:
 
   steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
@@ -34,7 +34,7 @@ jobs:
       RUBOCOP_CACHE_ROOT: tmp/rubocop
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         
       - name: Fix executable permissions
         run: chmod +x bin/*
@@ -79,7 +79,7 @@ jobs:
           --health-retries 5
 
   steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - uses: ruby/setup-ruby@v1
       with:
@@ -107,7 +107,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: ruby/setup-ruby@v1
         with:
